@@ -1135,7 +1135,7 @@ JSONEditor.Validator = Class.extend({
           errors.push({
             path: path,
             property: 'pattern',
-            message: this.translate('error_pattern', [schema.pattern])
+            message: this.translate('error_pattern', [schema.patternErrorMessage])
           });
         }
       }
@@ -7783,7 +7783,7 @@ JSONEditor.defaults.languages.en = {
   /**
    * When a value does not match a given pattern
    */
-  error_pattern: "Value must match the pattern {{0}}",
+  error_pattern: "{{0}}",
   /**
    * When an array has additional items whereas it is not supposed to
    */
