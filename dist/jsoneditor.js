@@ -1140,6 +1140,29 @@ JSONEditor.Validator = Class.extend({
         }
       }
     }
+
+     // `contains`
+     if(schema.contains) {
+      if(!(new RegExp(schema.contains)).test(value)) {
+        errors.push({
+          path: path,
+          property: 'contains',
+          message: this.translate('error_contains', [schema.contains])
+        });
+      }
+    }
+
+    // `startsWith`
+    if(schema.startsWith) {
+      if(!(value.startsWith(schema.startsWith))) {
+        errors.push({
+          path: path,
+          property: 'startsWith',
+          message: this.translate('error_startsWith', [schema.startsWith])
+        });
+      }
+    }
+  }
     // Array specific validation
     else if(typeof value === "object" && value !== null && Array.isArray(value)) {
       // `items` and `additionalItems`
@@ -2053,6 +2076,8 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     // minLength, maxLength, and pattern
     if(typeof this.schema.maxLength !== "undefined") this.input.setAttribute('maxlength',this.schema.maxLength);
     if(typeof this.schema.pattern !== "undefined") this.input.setAttribute('pattern',this.schema.pattern);
+    if(typeof this.schema.contains !== "undefined") this.input.setAttribute('contains',this.schema.contains);
+    if(typeof this.schema.startsWith !== "undefined") this.input.setAttribute('startsWith',this.schema.startsWith);
     else if(typeof this.schema.minLength !== "undefined") this.input.setAttribute('pattern','.{'+this.schema.minLength+',}');
 
     if(this.options.compact) {
@@ -7784,6 +7809,14 @@ JSONEditor.defaults.languages.en = {
    * When a value does not match a given pattern
    */
   error_pattern: "{{0}}",
+      /**
+   * When a value does not contain a given value
+   */
+  error_contains: "Value must contain {{0}}",
+      /**
+   * When a value does not starts with a given value
+   */
+  error_startsWith: "Value must starts with {{0}}",
   /**
    * When an array has additional items whereas it is not supposed to
    */
