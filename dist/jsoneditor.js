@@ -1164,7 +1164,7 @@ JSONEditor.Validator = Class.extend({
 
     // `equalsTo`
     if(schema.equalsTo) {
-      if(!(value === schema.equalsTo)) {
+      if(!((value+"").length == schema.equalsTo)) {
         errors.push({
           path: path,
           property: 'equalsTo',
@@ -7831,7 +7831,7 @@ JSONEditor.defaults.languages.en = {
   /**
    * When a value is not equal to given value
    */
-  error_equalsTo: "Value must equal to {{0}}",
+  error_equalsTo: "Value must have {{0}} characters",
   /**
    * When an array has additional items whereas it is not supposed to
    */
