@@ -1139,7 +1139,6 @@ JSONEditor.Validator = Class.extend({
           });
         }
       }
-    }
 
      // `contains`
      if(schema.contains) {
@@ -1159,6 +1158,17 @@ JSONEditor.Validator = Class.extend({
           path: path,
           property: 'startsWith',
           message: this.translate('error_startsWith', [schema.startsWith])
+        });
+      }
+    }
+
+    // `equalsTo`
+    if(schema.equalsTo) {
+      if(!((value+"").length == schema.equalsTo)) {
+        errors.push({
+          path: path,
+          property: 'equalsTo',
+          message: this.translate('error_equalsTo', [schema.equalsTo])
         });
       }
     }
@@ -2078,6 +2088,7 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     if(typeof this.schema.pattern !== "undefined") this.input.setAttribute('pattern',this.schema.pattern);
     if(typeof this.schema.contains !== "undefined") this.input.setAttribute('contains',this.schema.contains);
     if(typeof this.schema.startsWith !== "undefined") this.input.setAttribute('startsWith',this.schema.startsWith);
+    if(typeof this.schema.equalsTo !== "undefined") this.input.setAttribute('equalsTo',this.schema.equalsTo);
     else if(typeof this.schema.minLength !== "undefined") this.input.setAttribute('pattern','.{'+this.schema.minLength+',}');
 
     if(this.options.compact) {
@@ -7809,14 +7820,18 @@ JSONEditor.defaults.languages.en = {
    * When a value does not match a given pattern
    */
   error_pattern: "{{0}}",
-      /**
+  /**
    * When a value does not contain a given value
    */
   error_contains: "Value must contain {{0}}",
-      /**
+  /**
    * When a value does not starts with a given value
    */
   error_startsWith: "Value must starts with {{0}}",
+  /**
+   * When a value is not equal to given value
+   */
+  error_equalsTo: "Value must have {{0}} characters",
   /**
    * When an array has additional items whereas it is not supposed to
    */
