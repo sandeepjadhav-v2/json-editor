@@ -1142,7 +1142,7 @@ JSONEditor.Validator = Class.extend({
 
      // `contains`
      if(schema.contains) {
-      if(!(new RegExp(schema.contains)).test(value)) {
+      if(!(new RegExp(schema.contains.toLowerCase())).test(value.toLowerCase())) {
         errors.push({
           path: path,
           property: 'contains',
@@ -1153,7 +1153,7 @@ JSONEditor.Validator = Class.extend({
 
     // `startsWith`
     if(schema.startsWith) {
-      if(!(value.startsWith(schema.startsWith))) {
+      if(!((value.toLowerCase()).startsWith(schema.startsWith.toLowerCase()))) {
         errors.push({
           path: path,
           property: 'startsWith',
