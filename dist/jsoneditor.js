@@ -1153,7 +1153,7 @@ JSONEditor.Validator = Class.extend({
 
     // `startsWith`
     if(schema.startsWith) {
-      if(!(value.startsWith(schema.startsWith))) {
+      if(!((value.toLowerCase()).startsWith(schema.startsWith.toLowerCase()))) {
         errors.push({
           path: path,
           property: 'startsWith',
