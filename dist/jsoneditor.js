@@ -272,6 +272,14 @@ JSONEditor.prototype = {
           if (self.root.schema.properties[key].format === 'date') {
             self.options.startval[key] = $.datepicker.formatDate('yy-mm-dd', new Date(value));
           }
+        } else if (Array.isArray(value)) {
+          for (var i = 0; i < value.length; i++) {
+            $.each(value[i], function (key1, val1) {
+              if (key1 === 'date') {
+                self.options.startval[key][i][key1] = $.datepicker.formatDate('yy-mm-dd', new Date(val1));
+              }
+            });
+          }
         }
       });
       self.root.preBuild();
@@ -1142,7 +1150,7 @@ JSONEditor.Validator = Class.extend({
 
      // `contains`
      if(schema.contains) {
-      if(!(new RegExp(schema.contains)).test(value)) {
+      if(!(new RegExp(schema.contains.toLowerCase())).test(value.toLowerCase())) {
         errors.push({
           path: path,
           property: 'contains',
@@ -1153,7 +1161,7 @@ JSONEditor.Validator = Class.extend({
 
     // `startsWith`
     if(schema.startsWith) {
-      if(!(value.startsWith(schema.startsWith))) {
+      if(!((value.toLowerCase()).startsWith(schema.startsWith.toLowerCase()))) {
         errors.push({
           path: path,
           property: 'startsWith',
