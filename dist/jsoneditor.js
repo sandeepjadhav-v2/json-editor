@@ -272,14 +272,6 @@ JSONEditor.prototype = {
           if (self.root.schema.properties[key].format === 'date') {
             self.options.startval[key] = $.datepicker.formatDate('yy-mm-dd', new Date(value));
           }
-        } else if (Array.isArray(value)) {
-          for (var i = 0; i < value.length; i++) {
-            $.each(value[i], function (key1, val1) {
-              if (key1 === 'date') {
-                self.options.startval[key][i][key1] = $.datepicker.formatDate('yy-mm-dd', new Date(val1));
-              }
-            });
-          }
         }
       });
       self.root.preBuild();
