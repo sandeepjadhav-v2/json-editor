@@ -272,14 +272,6 @@ JSONEditor.prototype = {
           if (self.root.schema.properties[key].format === 'date') {
             self.options.startval[key] = $.datepicker.formatDate('yy-mm-dd', new Date(value));
           }
-        } else if (Array.isArray(value)) {
-          for (var i = 0; i < value.length; i++) {
-            $.each(value[i], function (key1, val1) {
-              if (key1 === 'date') {
-                self.options.startval[key][i][key1] = $.datepicker.formatDate('yy-mm-dd', new Date(val1));
-              }
-            });
-          }
         }
       });
       self.root.preBuild();
@@ -1245,23 +1237,6 @@ JSONEditor.Validator = Class.extend({
             property: 'minItems',
             message: this.translate('error_minItems', [schema.minItems])
           });
-        }
-      }
-
-      // `uniqueItems`
-      if(schema.uniqueItems) {
-        var seen = {};
-        for(i=0; i<value.length; i++) {
-          valid = JSON.stringify(value[i]);
-          if(seen[valid]) {
-            errors.push({
-              path: path,
-              property: 'uniqueItems',
-              message: this.translate('error_uniqueItems')
-            });
-            break;
-          }
-          seen[valid] = true;
         }
       }
     }
@@ -7855,10 +7830,6 @@ JSONEditor.defaults.languages.en = {
    */
   error_minItems: "Value must have at least {{0}} items",
   /**
-   * When an array is supposed to have unique items but has duplicates
-   */
-  error_uniqueItems: "Array must have unique items",
-  /**
    * When there are too many properties in an object
    * @variables This key takes one variable: The maximum property count
    */
@@ -8024,7 +7995,7 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 });
 // Specialized editors for arrays of strings
 JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
+  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
     // For enumerated strings, number, or integers
     if(schema.items.enum) {
       return 'multiselect';
