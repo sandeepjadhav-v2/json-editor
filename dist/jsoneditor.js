@@ -269,7 +269,7 @@ JSONEditor.prototype = {
 
       $.each(self.options.startval, function (key, value) {
         if (typeof value === 'string') {
-          if (self.root.schema.properties[key].format === 'date') {
+          if (self.root.schema.properties[key] && self.root.schema.properties[key].format === 'date') {
             self.options.startval[key] = $.datepicker.formatDate('yy-mm-dd', new Date(value));
           }
         }
