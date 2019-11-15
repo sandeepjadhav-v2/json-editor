@@ -1212,8 +1212,12 @@ JSONEditor.Validator = Class.extend({
         // `items` is a schema
         else {
           // Each item in the array must validate against the schema
-          for(i=0; i<value.length; i++) {
-            errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+
+          // Bypassing the validation rules if there is only one row in the parsed data
+          if(value.length > 1){
+            for(i=0; i<value.length; i++) {
+              errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+            }
           }
         }
       }
