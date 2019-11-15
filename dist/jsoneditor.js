@@ -1213,7 +1213,10 @@ JSONEditor.Validator = Class.extend({
         else {
           // Each item in the array must validate against the schema
           for(i=0; i<value.length; i++) {
-            errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+          // Bypass the validation rules if there is only one row in the parsed data
+            if(i !== 0){
+              errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+            }
           }
         }
       }
