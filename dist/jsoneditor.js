@@ -1564,7 +1564,7 @@ JSONEditor.AbstractEditor = Class.extend({
       title = null;
     }
 
-    var btn = this.theme.getButton(text, icon, title);
+    var btn = this.theme.getButton(text.charAt(0).toUpperCase() +  text.slice(1), icon, title);
     btn.className += ' ' + btnClass + ' ';
     return btn;
   },
