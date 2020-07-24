@@ -1214,7 +1214,7 @@ JSONEditor.Validator = Class.extend({
           // Each item in the array must validate against the schema
 
           // Bypassing the validation rules if there is only one row in the parsed data
-          if(value.length > 1){
+          if(value.length >= 1){
             for(i=0; i<value.length; i++) {
               errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
             }
@@ -1564,7 +1564,7 @@ JSONEditor.AbstractEditor = Class.extend({
       title = null;
     }
 
-    var btn = this.theme.getButton(text, icon, title);
+    var btn = this.theme.getButton(text.charAt(0).toUpperCase() +  text.slice(1), icon, title);
     btn.className += ' ' + btnClass + ' ';
     return btn;
   },
@@ -4257,7 +4257,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
 
     // If there are maxItems in the array, hide the add button beneath the rows
     if((this.schema.maxItems && this.schema.maxItems <= this.rows.length) || this.hide_add_button) {
-      this.add_row_button.style.display = 'none';
+      this.add_row_button.style.display = '';
     }
     else {
       this.add_row_button.style.display = '';
@@ -4265,7 +4265,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     }
 
     if(!controls_needed) {
-      this.controls.style.display = 'none';
+      this.controls.style.display = '';
     }
     else {
       this.controls.style.display = '';
@@ -6751,12 +6751,12 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
   },
   getButtonHolder: function() {
     var el = document.createElement('div');
-    el.className = 'btn-group';
+    el.className = 'btn-group pull-right';
     return el;
   },
   getButton: function(text, icon, title) {
     var el = this._super(text, icon, title);
-    el.className += 'btn btn-default';
+    el.className += 'btn btn-primary';
     return el;
   },
   getTable: function() {
