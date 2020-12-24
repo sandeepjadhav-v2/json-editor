@@ -269,7 +269,7 @@ JSONEditor.prototype = {
 
       $.each(self.options.startval, function (key, value) {
         if (typeof value === 'string') {
-          if (self.root.schema.properties[key].format === 'date') {
+          if (self.root.schema.properties[key] && self.root.schema.properties[key].format === 'date') {
             self.options.startval[key] = $.datepicker.formatDate('yy-mm-dd', new Date(value));
           }
         }
@@ -831,7 +831,7 @@ JSONEditor.Validator = Class.extend({
     var valid, i, j;
     var stringified = JSON.stringify(value);
 
-    path = path || 'root';
+    path = path || 'Document';
 
     // Work on a copy of the schema
     schema = $extend({},this.jsoneditor.expandRefs(schema));
@@ -1139,7 +1139,40 @@ JSONEditor.Validator = Class.extend({
           });
         }
       }
+
+     // `contains`
+     if(schema.contains) {
+      if(!(new RegExp(schema.contains.toLowerCase())).test(value.toLowerCase())) {
+        errors.push({
+          path: path,
+          property: 'contains',
+          message: this.translate('error_contains', [schema.contains])
+        });
+      }
     }
+
+    // `startsWith`
+    if(schema.startsWith) {
+      if(!((value.toLowerCase()).startsWith(schema.startsWith.toLowerCase()))) {
+        errors.push({
+          path: path,
+          property: 'startsWith',
+          message: this.translate('error_startsWith', [schema.startsWith])
+        });
+      }
+    }
+
+    // `equalsTo`
+    if(schema.equalsTo) {
+      if(!((value+"").length == schema.equalsTo)) {
+        errors.push({
+          path: path,
+          property: 'equalsTo',
+          message: this.translate('error_equalsTo', [schema.equalsTo])
+        });
+      }
+    }
+  }
     // Array specific validation
     else if(typeof value === "object" && value !== null && Array.isArray(value)) {
       // `items` and `additionalItems`
@@ -1179,8 +1212,12 @@ JSONEditor.Validator = Class.extend({
         // `items` is a schema
         else {
           // Each item in the array must validate against the schema
-          for(i=0; i<value.length; i++) {
-            errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+
+          // Bypassing the validation rules if there is only one row in the parsed data
+          if(value.length >= 1){
+            for(i=0; i<value.length; i++) {
+              errors = errors.concat(this._validateSchema(schema.items,value[i],path+'.'+i));
+            }
           }
         }
       }
@@ -1204,23 +1241,6 @@ JSONEditor.Validator = Class.extend({
             property: 'minItems',
             message: this.translate('error_minItems', [schema.minItems])
           });
-        }
-      }
-
-      // `uniqueItems`
-      if(schema.uniqueItems) {
-        var seen = {};
-        for(i=0; i<value.length; i++) {
-          valid = JSON.stringify(value[i]);
-          if(seen[valid]) {
-            errors.push({
-              path: path,
-              property: 'uniqueItems',
-              message: this.translate('error_uniqueItems')
-            });
-            break;
-          }
-          seen[valid] = true;
         }
       }
     }
@@ -1436,7 +1456,7 @@ JSONEditor.AbstractEditor = Class.extend({
     this.options = $extend({}, (this.options || {}), (options.schema.options || {}), options);
 
     if(!options.path && !this.schema.id) this.schema.id = 'root';
-    this.path = options.path || 'root';
+    this.path = options.path || 'Document';
     this.formname = options.formname || this.path.replace(/\.([^.]+)/g,'[$1]');
     if(this.jsoneditor.options.form_name_root) this.formname = this.formname.replace(/^root\[/,this.jsoneditor.options.form_name_root+'[');
     this.key = this.path.split('.').pop();
@@ -1544,7 +1564,7 @@ JSONEditor.AbstractEditor = Class.extend({
       title = null;
     }
 
-    var btn = this.theme.getButton(text, icon, title);
+    var btn = this.theme.getButton(text.charAt(0).toUpperCase() +  text.slice(1), icon, title);
     btn.className += ' ' + btnClass + ' ';
     return btn;
   },
@@ -2053,6 +2073,9 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     // minLength, maxLength, and pattern
     if(typeof this.schema.maxLength !== "undefined") this.input.setAttribute('maxlength',this.schema.maxLength);
     if(typeof this.schema.pattern !== "undefined") this.input.setAttribute('pattern',this.schema.pattern);
+    if(typeof this.schema.contains !== "undefined") this.input.setAttribute('contains',this.schema.contains);
+    if(typeof this.schema.startsWith !== "undefined") this.input.setAttribute('startsWith',this.schema.startsWith);
+    if(typeof this.schema.equalsTo !== "undefined") this.input.setAttribute('equalsTo',this.schema.equalsTo);
     else if(typeof this.schema.minLength !== "undefined") this.input.setAttribute('pattern','.{'+this.schema.minLength+',}');
 
     if(this.options.compact) {
@@ -4234,7 +4257,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
 
     // If there are maxItems in the array, hide the add button beneath the rows
     if((this.schema.maxItems && this.schema.maxItems <= this.rows.length) || this.hide_add_button) {
-      this.add_row_button.style.display = 'none';
+      this.add_row_button.style.display = '';
     }
     else {
       this.add_row_button.style.display = '';
@@ -4242,7 +4265,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     }
 
     if(!controls_needed) {
-      this.controls.style.display = 'none';
+      this.controls.style.display = '';
     }
     else {
       this.controls.style.display = '';
@@ -6728,12 +6751,12 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
   },
   getButtonHolder: function() {
     var el = document.createElement('div');
-    el.className = 'btn-group';
+    el.className = 'btn-group pull-right';
     return el;
   },
   getButton: function(text, icon, title) {
     var el = this._super(text, icon, title);
-    el.className += 'btn btn-default';
+    el.className += 'btn btn-primary';
     return el;
   },
   getTable: function() {
@@ -7785,6 +7808,18 @@ JSONEditor.defaults.languages.en = {
    */
   error_pattern: "{{0}}",
   /**
+   * When a value does not contain a given value
+   */
+  error_contains: "Value must contain {{0}}",
+  /**
+   * When a value does not starts with a given value
+   */
+  error_startsWith: "Value must starts with {{0}}",
+  /**
+   * When a value is not equal to given value
+   */
+  error_equalsTo: "Value must have {{0}} characters",
+  /**
    * When an array has additional items whereas it is not supposed to
    */
   error_additionalItems: "No additional items allowed in this array",
@@ -7798,10 +7833,6 @@ JSONEditor.defaults.languages.en = {
    * @variables This key takes one variable: The minimum item count
    */
   error_minItems: "Value must have at least {{0}} items",
-  /**
-   * When an array is supposed to have unique items but has duplicates
-   */
-  error_uniqueItems: "Array must have unique items",
   /**
    * When there are too many properties in an object
    * @variables This key takes one variable: The maximum property count
@@ -7968,7 +7999,7 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 });
 // Specialized editors for arrays of strings
 JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
+  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
     // For enumerated strings, number, or integers
     if(schema.items.enum) {
       return 'multiselect';
