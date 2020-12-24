@@ -831,7 +831,7 @@ JSONEditor.Validator = Class.extend({
     var valid, i, j;
     var stringified = JSON.stringify(value);
 
-    path = path || 'root';
+    path = path || 'Document';
 
     // Work on a copy of the schema
     schema = $extend({},this.jsoneditor.expandRefs(schema));
